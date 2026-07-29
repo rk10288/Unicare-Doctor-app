@@ -67,7 +67,12 @@ jobs:
       - name: Build IPA
         run: |
           flutter build ipa --release \
-            --export-options-plist=ios/ExportOptions.plist
+            --export-options-plist=ios/ExportOptions.plist \
+            -- \
+            CODE_SIGN_STYLE=Manual \
+            "CODE_SIGN_IDENTITY=iPhone Distribution" \
+            DEVELOPMENT_TEAM=J4RU3Q77Y7 \
+            "PROVISIONING_PROFILE_SPECIFIER=Unicare Home Health Care app for doctors"
 
       # ---------- 6. Upload to App Store Connect (TestFlight) ----------
       - name: Upload to App Store Connect
@@ -79,7 +84,6 @@ jobs:
           mkdir -p ~/private_keys
           echo -n "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode -o ~/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8
 
-          xcrun notarytool store-credentials ... # ← only for Mac notarization; not applicable here
           # Use fastlane pilot (pre-installed on GitHub macOS runners)
           bundle exec fastlane pilot upload \
             --api_key_path ~/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8 \

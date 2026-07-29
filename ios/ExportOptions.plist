@@ -13,7 +13,7 @@
 
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.unicare.doctor</key>
+        <key>com.unicarehhc.doctor</key>
         <string>Unicare Home Health Care app for doctors</string>
     </dict>
 
