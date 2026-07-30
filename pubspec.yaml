@@ -102,6 +102,10 @@ dependencies:
     sdk: flutter
   percent_indicator: ^4.2.5
 
+dependency_overrides:
+  # connectivity_plus 7.x uses NWPath.isUltraConstrained (iOS 26 SDK only); 6.x is compatible with older SDKs
+  connectivity_plus: ">=6.0.0 <7.0.0"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
