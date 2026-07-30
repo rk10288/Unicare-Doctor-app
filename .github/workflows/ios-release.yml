@@ -46,9 +46,9 @@ jobs:
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          # Decode secrets to files
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          # Decode secrets to files (strip whitespace first to handle copy-paste artifacts)
+          echo "$BUILD_CERTIFICATE_BASE64" | tr -d ' \n\r' | base64 --decode -o $CERTIFICATE_PATH
+          echo "$BUILD_PROVISION_PROFILE_BASE64" | tr -d ' \n\r' | base64 --decode -o $PP_PATH
 
           # Fail fast with clear messages if either secret decoded to an empty file
           if [ ! -s "$CERTIFICATE_PATH" ]; then
@@ -73,9 +73,16 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-          # Extract the profile's UUID and name so later steps don't need them hardcoded
-          PROFILE_UUID=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
-          PROFILE_NAME=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+          # Extract the profile's UUID and name via a temp file (piping to /dev/stdin is unreliable)
+          PROFILE_DECODED=$(mktemp)
+          security cms -D -i $PP_PATH -o $PROFILE_DECODED
+          if [ ! -s "$PROFILE_DECODED" ]; then
+            echo "ERROR: security cms -D failed — provisioning profile is not a valid CMS-encoded .mobileprovision file."
+            exit 1
+          fi
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" $PROFILE_DECODED)
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print Name" $PROFILE_DECODED)
+          rm -f $PROFILE_DECODED
           echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
           echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
 
