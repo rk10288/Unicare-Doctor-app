@@ -63,16 +63,44 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
-      # ---------- 5. Build the release IPA ----------
-      - name: Build IPA
+          # Extract the profile's UUID and name so later steps don't need them hardcoded
+          PROFILE_UUID=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin)
+          PROFILE_NAME=$(security cms -D -i $PP_PATH | /usr/libexec/PlistBuddy -c "Print Name" /dev/stdin)
+          echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
+          echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
+
+      # ---------- 5. Archive with explicit MANUAL signing ----------
+      # This is the key fix: Flutter's default Xcode project uses "Automatic"
+      # signing for Release, which fails in CI when only a distribution cert
+      # exists. We override signing settings directly on the xcodebuild call
+      # so it uses your distribution cert + profile, never a dev certificate.
+      - name: Flutter build (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Archive with manual signing
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          flutter build ipa --release \
-            --export-options-plist=ios/ExportOptions.plist \
-            -- \
+          cd ios
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/Runner.xcarchive \
             CODE_SIGN_STYLE=Manual \
-            "CODE_SIGN_IDENTITY=iPhone Distribution" \
-            DEVELOPMENT_TEAM=J4RU3Q77Y7 \
-            "PROVISIONING_PROFILE_SPECIFIER=Unicare Home Health Care app for doctors"
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+            PROVISIONING_PROFILE="$PROFILE_UUID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
+
+      # ---------- 5b. Export the .ipa from the archive ----------
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist ios/ExportOptions.plist
 
       # ---------- 6. Upload to App Store Connect (TestFlight) ----------
       - name: Upload to App Store Connect

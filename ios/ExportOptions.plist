@@ -11,12 +11,13 @@
     <key>signingStyle</key>
     <string>manual</string>
 
+    <!--
     <key>provisioningProfiles</key>
     <dict>
         <key>com.unicarehhc.doctor</key>
         <string>Unicare Home Health Care app for doctors</string>
     </dict>
-
+    -->
     <key>uploadBitcode</key>
     <false/>
 
