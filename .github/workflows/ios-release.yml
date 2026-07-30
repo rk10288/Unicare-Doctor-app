@@ -50,6 +50,16 @@ jobs:
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
+          # Fail fast with clear messages if either secret decoded to an empty file
+          if [ ! -s "$CERTIFICATE_PATH" ]; then
+            echo "ERROR: BUILD_CERTIFICATE_BASE64 is empty or not set — certificate file is zero-length."
+            exit 1
+          fi
+          if [ ! -s "$PP_PATH" ]; then
+            echo "ERROR: BUILD_PROVISION_PROFILE_BASE64 is empty or not set — provisioning profile file is zero-length."
+            exit 1
+          fi
+
           # Create a temporary keychain and import the certificate
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
