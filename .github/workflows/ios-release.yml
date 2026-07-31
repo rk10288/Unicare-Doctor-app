@@ -95,6 +95,21 @@ jobs:
           echo "PROFILE_UUID=$PROFILE_UUID" >> $GITHUB_ENV
           echo "PROFILE_NAME=$PROFILE_NAME" >> $GITHUB_ENV
 
+      # ---------- 6. Set Development Team for Flutter's build check ----------
+      # `flutter build ... --no-codesign` still checks for a configured
+      # Development Team before it will proceed, even though it won't
+      # actually sign anything. Since this project was never opened in
+      # Xcode (no Mac available), that field was never set. Injecting it
+      # into the xcconfig files satisfies Flutter's check without needing
+      # the Xcode UI.
+      - name: Set Development Team
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for cfg in ios/Flutter/Debug.xcconfig ios/Flutter/Release.xcconfig ios/Flutter/Profile.xcconfig; do
+            echo "DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM" >> "$cfg"
+          done
+          
       # ---------- 5. Archive with explicit MANUAL signing ----------
       # This is the key fix: Flutter's default Xcode project uses "Automatic"
       # signing for Release, which fails in CI when only a distribution cert
