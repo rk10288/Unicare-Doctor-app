@@ -10,7 +10,7 @@ on:
 jobs:
   build-ios:
     name: Build & Upload to TestFlight
-    runs-on: macos-14   # Apple Silicon runner; use macos-latest if you don't care which
+    runs-on: macos-15   # Apple Silicon runner; use macos-latest if you don't care which
 
     steps:
       # ---------- 1. Checkout code ----------
