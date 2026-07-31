@@ -25,6 +25,9 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.2'
+        
+      - name: Download iOS platform support
+        run: xcodebuild -downloadPlatform iOS
 
       # ---------- 2. Set up Flutter ----------
       - name: Set up Flutter
@@ -109,7 +112,7 @@ jobs:
           for cfg in ios/Flutter/Debug.xcconfig ios/Flutter/Release.xcconfig ios/Flutter/Profile.xcconfig; do
             echo "DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM" >> "$cfg"
           done
-          
+
       # ---------- 5. Archive with explicit MANUAL signing ----------
       # This is the key fix: Flutter's default Xcode project uses "Automatic"
       # signing for Release, which fails in CI when only a distribution cert
