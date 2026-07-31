@@ -27,8 +27,8 @@ jobs:
         with:
           xcode-version: 'latest-stable'
         
-      - name: Download iOS platform support
-        run: xcodebuild -downloadPlatform iOS
+      # - name: Download iOS platform support
+      #   run: xcodebuild -downloadPlatform iOS
 
       # ---------- 3. Set up Flutter ----------
       - name: Set up Flutter
