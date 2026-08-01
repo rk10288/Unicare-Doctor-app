@@ -128,6 +128,10 @@ jobs:
           for cfg in ios/Flutter/Debug.xcconfig ios/Flutter/Release.xcconfig ios/Flutter/Profile.xcconfig; do
             echo "DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM" >> "$cfg"
           done
+          # Provisioning profile settings go into Release.xcconfig (Runner target only).
+          # Passing them as global xcodebuild args causes errors on SPM package targets.
+          printf '\nCODE_SIGN_STYLE=Manual\nPROVISIONING_PROFILE=%s\nPROVISIONING_PROFILE_SPECIFIER=%s\n' \
+            "$PROFILE_UUID" "$PROFILE_NAME" >> ios/Flutter/Release.xcconfig
 
       # ---------- 7. Archive with explicit MANUAL signing ----------
       # This is the key fix: Flutter's default Xcode project uses "Automatic"
@@ -148,11 +152,8 @@ jobs:
             -sdk iphoneos \
             -configuration Release \
             -archivePath $RUNNER_TEMP/Runner.xcarchive \
-            CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-            PROVISIONING_PROFILE="$PROFILE_UUID" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME"
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM"
 
       # ---------- 8. Export the .ipa from the archive ----------
       - name: Export IPA
