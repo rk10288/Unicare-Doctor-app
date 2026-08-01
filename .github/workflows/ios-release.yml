@@ -199,8 +199,8 @@ jobs:
           mkdir -p ~/private_keys
           echo -n "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode -o ~/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8
 
-          # Use fastlane pilot (pre-installed on GitHub macOS runners)
-          bundle exec fastlane pilot upload \
+          # fastlane is pre-installed on GitHub macOS runners — no Gemfile needed
+          fastlane pilot upload \
             --api_key_path ~/private_keys/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8 \
             --ipa build/ios/ipa/*.ipa
 
