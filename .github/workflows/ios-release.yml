@@ -39,6 +39,9 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get
 
+      - name: Install FlutterFire CLI
+        run: dart pub global activate flutterfire_cli
+
       # ---------- 4. Install CocoaPods dependencies ----------
       - name: Install CocoaPods
         run: |
