@@ -158,10 +158,36 @@ jobs:
       # ---------- 8. Export the .ipa from the archive ----------
       - name: Export IPA
         run: |
+          # Generate ExportOptions with the exact UUID extracted from the installed profile.
+          # The static file in ios/ExportOptions.plist lacks provisioningProfiles, which
+          # causes "requires a provisioning profile" with signingStyle=manual.
+          cat > $RUNNER_TEMP/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>teamID</key>
+              <string>${{ secrets.APPLE_TEAM_ID }}</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.unicarehhc.doctor</key>
+                  <string>$PROFILE_UUID</string>
+              </dict>
+              <key>uploadSymbols</key>
+              <true/>
+              <key>compileBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
           xcodebuild -exportArchive \
             -archivePath $RUNNER_TEMP/Runner.xcarchive \
             -exportPath build/ios/ipa \
-            -exportOptionsPlist ios/ExportOptions.plist
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist
 
       # ---------- 9. Upload to App Store Connect (TestFlight) ----------
       - name: Upload to App Store Connect
