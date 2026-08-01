@@ -128,9 +128,10 @@ jobs:
           for cfg in ios/Flutter/Debug.xcconfig ios/Flutter/Release.xcconfig ios/Flutter/Profile.xcconfig; do
             echo "DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM" >> "$cfg"
           done
-          # Provisioning profile settings go into Release.xcconfig (Runner target only).
-          # Passing them as global xcodebuild args causes errors on SPM package targets.
-          printf '\nCODE_SIGN_STYLE=Manual\nPROVISIONING_PROFILE=%s\nPROVISIONING_PROFILE_SPECIFIER=%s\n' \
+          # Signing settings go into Release.xcconfig (Runner target only).
+          # Passing them as global xcodebuild args applies to ALL targets including
+          # SPM packages, which don't support manual signing and will error.
+          printf '\nCODE_SIGN_STYLE=Manual\nCODE_SIGN_IDENTITY=Apple Distribution\nPROVISIONING_PROFILE=%s\nPROVISIONING_PROFILE_SPECIFIER=%s\n' \
             "$PROFILE_UUID" "$PROFILE_NAME" >> ios/Flutter/Release.xcconfig
 
       # ---------- 7. Archive with explicit MANUAL signing ----------
@@ -152,7 +153,6 @@ jobs:
             -sdk iphoneos \
             -configuration Release \
             -archivePath $RUNNER_TEMP/Runner.xcarchive \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM"
 
       # ---------- 8. Export the .ipa from the archive ----------
