@@ -208,7 +208,8 @@ jobs:
 
           fastlane pilot upload \
             --api_key_path ~/private_keys/api_key.json \
-            --ipa build/ios/ipa/*.ipa
+            --ipa build/ios/ipa/*.ipa \
+            --skip_waiting_for_build_processing true
 
       # ---------- 10. Cleanup (optional but tidy) ----------
       - name: Clean up keychain and profile
