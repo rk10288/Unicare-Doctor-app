@@ -47,7 +47,6 @@ class AppTheme {
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
         TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder(),
         TargetPlatform.macOS: OpenUpwardsPageTransitionsBuilder(),
       },
@@ -92,7 +91,6 @@ class AppTheme {
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
         TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
         TargetPlatform.linux: OpenUpwardsPageTransitionsBuilder(),
         TargetPlatform.macOS: OpenUpwardsPageTransitionsBuilder(),
       },
