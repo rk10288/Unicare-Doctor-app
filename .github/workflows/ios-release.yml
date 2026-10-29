@@ -174,7 +174,7 @@ jobs:
               <string>manual</string>
               <key>provisioningProfiles</key>
               <dict>
-                  <key>com.unicarehhc.doctor</key>
+                  <key>com.unicarehhc.doctorapp</key>
                   <string>$PROFILE_UUID</string>
               </dict>
               <key>uploadSymbols</key>
